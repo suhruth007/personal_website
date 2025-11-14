@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alex Mitchell | ML Engineer",
-  description: "Personal portfolio of Alex Mitchell, Machine Learning Engineer specializing in LLMs and AI systems.",
+  title: "Suhruth Madarapu | Machine Learning Developer",
+  description: "Personal portfolio of Suhruth Madarapu - Machine Learning Developer specializing in audio deepfake detection, GPU-accelerated computing, and AI systems.",
+  icons: {
+    icon: '/DSC_2447.JPG',
+  },
 };
 
 export const viewport: Viewport = {

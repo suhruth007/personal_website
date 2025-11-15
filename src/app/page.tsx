@@ -75,8 +75,8 @@ const TypingProgressTracker = ({ texts, currentIndex, onComplete }: { texts: str
 
 // Hero Typing Animation Component
 const HeroTypingAnimation = () => {
-  const greetingText = "Hi, I'm Suhruth, Nice To Meet You.";
-  const displayedText = useTypewriter(greetingText, true, 60);
+  const greetingText = "Hi, I'm Suhruth Madarapu";
+  const displayedText = useTypewriter(greetingText, true, 100);
 
   return (
     <motion.h1

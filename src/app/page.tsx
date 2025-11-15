@@ -13,6 +13,89 @@ import {
   X,
 } from 'lucide-react';
 
+// Typing Animation Hook with delay control
+const useTypewriter = (text: string, shouldStart: boolean = true, speed: number = 50) => {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    if (!shouldStart) return;
+
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setDisplayedText(text.substring(0, index + 1));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, shouldStart, speed]);
+
+  return displayedText;
+};
+
+// Typing Paragraph Component
+const TypingParagraph = ({ text, shouldStart = true, speed = 30 }: { text: string; shouldStart?: boolean; speed?: number }) => {
+  const displayedText = useTypewriter(text, shouldStart, speed);
+
+  return (
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-gray-700 leading-relaxed text-sm sm:text-base min-h-[1.5em]"
+    >
+      {displayedText}
+      {displayedText.length < text.length && (
+        <motion.span
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.6, repeat: Infinity }}
+          className="inline-block w-2 h-4 bg-amber-600 ml-1"
+        />
+      )}
+    </motion.p>
+  );
+};
+
+// Typing Progress Tracker to advance to next paragraph
+const TypingProgressTracker = ({ texts, currentIndex, onComplete }: { texts: string[]; currentIndex: number; onComplete: () => void }) => {
+  const currentText = texts[currentIndex];
+  const displayedText = useTypewriter(currentText, currentIndex < texts.length, 30);
+
+  useEffect(() => {
+    if (displayedText.length === currentText.length && currentIndex < texts.length - 1) {
+      const timer = setTimeout(onComplete, 500); // Wait 500ms before starting next
+      return () => clearTimeout(timer);
+    }
+  }, [displayedText, currentText, currentIndex, texts.length, onComplete]);
+
+  return null; // This component doesn't render anything
+};
+
+// Hero Typing Animation Component
+const HeroTypingAnimation = () => {
+  const greetingText = "Hi, I'm Suhruth, Nice To Meet You.";
+  const displayedText = useTypewriter(greetingText, true, 60);
+
+  return (
+    <motion.h1
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-4xl sm:text-5xl md:text-7xl font-bold mb-2 sm:mb-4 bg-linear-to-r from-amber-700 to-orange-600 bg-clip-text text-transparent min-h-[1.2em]"
+    >
+      {displayedText}
+      {displayedText.length < greetingText.length && (
+        <motion.span
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.6, repeat: Infinity }}
+          className="inline-block w-2 h-16 bg-amber-600 ml-2"
+        />
+      )}
+    </motion.h1>
+  );
+};
+
 /**
  * Personal Portfolio - Mobile-Optimized & Saffron-Themed
  * - Responsive design for 320px+ screens
@@ -35,6 +118,15 @@ export default function Home() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState(''); // 'success', 'error', or ''
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Typing animation state for sequential paragraphs
+  const [typingParagraph, setTypingParagraph] = useState(0);
+  const typingTexts = [
+    "I'm a Developer with a strong foundation in Engineering Physics. I specialize in building intelligent systems that combine deep learning, data analysis, and practical business insights.",
+    "Previously I worked on digital banking platforms analyzing user journeys and building predictive models. My expertise spans audio deepfake detection, GPU-accelerated computing, and real-time data pipelines—all designed to solve complex, real-world problems at scale.",
+    "Beyond code, I'm passionate about computational physics, open-source contributions, and exploring the intersection of AI and engineering innovation.",
+    "Hobbies: I'm an avid chess player—challenge me at chess.com! I also practice MMA in my spare time to stay sharp and grounded."
+  ];
 
   // Refs
   const flashlightRef = useRef<HTMLDivElement>(null);
@@ -366,13 +458,8 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Name - Responsive text sizes */}
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-7xl font-bold mb-2 sm:mb-4 bg-linear-to-r from-amber-700 to-orange-600 bg-clip-text text-transparent"
-          >
-            Suhruth Madarapu
-          </motion.h1>
+          {/* Name with Typing Animation */}
+          <HeroTypingAnimation />
 
           {/* Subtitle */}
           <motion.p
@@ -420,96 +507,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* HIRE ME GIF SECTION */}
-      <section className="relative py-6 sm:py-10 px-4 z-10 flex items-center justify-center">
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ duration: 0.8, type: 'spring', stiffness: 100 }}
-          className="text-center"
-        >
-          <div className="flex flex-col items-center gap-4">
-            {/* Funny Hire Me Text with Wiggle Animation */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              whileInView={{
-                rotateY: [0, 15, -15, 15, -15, 0],
-              }}
-              onViewportEnter={() => true}
-              className="hidden sm:block px-6 sm:px-8 md:px-12 py-4 sm:py-6 border-4 border-amber-600 rounded-xl bg-white/60 shadow-lg"
-            >
-              <motion.p
-                animate={{ rotateY: [0, 15, -15, 15, -15, 0], scale: [1, 1.05, 0.95, 1.05, 0.95, 1] }}
-                transition={{ duration: 0.4, repeat: Infinity, repeatType: 'mirror' }}
-                className="text-2xl sm:text-3xl md:text-4xl font-black text-amber-700 italic tracking-wide"
-              >
-                ✦ Plllleeeeeaaasssseee Hire me 😩💻 ✦
-              </motion.p>
-            </motion.div>
-
-            {/* Mobile Fade Version */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="sm:hidden px-4 py-3 border-3 border-amber-600 rounded-lg bg-white/60 shadow-md"
-            >
-              <motion.p
-                animate={{ rotateY: [0, 15, -15, 15, -15, 0], scale: [1, 1.05, 0.95, 1.05, 0.95, 1] }}
-                transition={{ duration: 0.4, repeat: Infinity, repeatType: 'mirror' }}
-                className="text-lg font-black text-amber-700 italic"
-              >
-                ✦ Plllllllllllleeeeeeeeeeeaaaaaaaassssseeeeee Hire me 😩💻 ✦
-              </motion.p>
-            </motion.div>
-
-            {/* GIF Gallery with animations - Larger and wider gap */}
-            <div className="flex gap-8 sm:gap-12 md:gap-16 justify-center flex-wrap">
-              {/* Baby Cartoon GIF */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40"
-              >
-                <img
-                  src="/baby-cartoon.webp"
-                  alt="Baby cartoon"
-                  className="w-full h-full object-cover rounded-lg shadow-lg"
-                />
-              </motion.div>
-
-              {/* Crying GIF */}
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40"
-              >
-                <img
-                  src="/crying.gif"
-                  alt="Crying"
-                  className="w-full h-full object-cover rounded-lg shadow-lg"
-                />
-              </motion.div>
-
-              {/* Praying Crying GIF */}
-              <motion.div
-                animate={{ rotate: [-5, 5, -5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40"
-              >
-                <img
-                  src="/praying-crying.gif"
-                  alt="Praying crying"
-                  className="w-full h-full object-cover rounded-lg shadow-lg"
-                />
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
       {/* ABOUT SECTION */}
       <section id="about" className="relative py-8 sm:py-16 md:py-20 px-4 bg-white/40 z-10">
         <motion.div
@@ -527,18 +524,17 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
             <motion.div variants={itemVariants} className="space-y-3 sm:space-y-4">
-              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                I'm a Developer with a strong foundation in Engineering Physics. I specialize in building intelligent systems that combine deep learning, data analysis, and practical business insights.
-              </p>
-              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                previously I worked on digital banking platforms analyzing user journeys and building predictive models. My expertise spans audio deepfake detection, GPU-accelerated computing, and real-time data pipelines—all designed to solve complex, real-world problems at scale.
-              </p>
-              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                Beyond code, I'm passionate about computational physics, open-source contributions, and exploring the intersection of AI and engineering innovation.
-              </p>
-              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                <span className="font-semibold">Hobbies:</span> I'm an avid chess player—challenge me at <a href="https://www.chess.com/member/peruguannam" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700 underline">chess.com</a>! I also practice MMA in my spare time to stay sharp and grounded.
-              </p>
+              <TypingParagraph text={typingTexts[0]} shouldStart={typingParagraph >= 0} />
+              <TypingParagraph text={typingTexts[1]} shouldStart={typingParagraph >= 1} />
+              <TypingParagraph text={typingTexts[2]} shouldStart={typingParagraph >= 2} />
+              <TypingParagraph text={typingTexts[3]} shouldStart={typingParagraph >= 3} />
+              
+              {/* Hidden element to track typing completion and advance to next paragraph */}
+              <TypingProgressTracker 
+                texts={typingTexts}
+                currentIndex={typingParagraph}
+                onComplete={() => setTypingParagraph(p => Math.min(p + 1, typingTexts.length - 1))}
+              />
             </motion.div>
 
             <motion.div variants={itemVariants}>
